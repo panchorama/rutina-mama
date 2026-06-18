@@ -416,7 +416,7 @@
             background: rgba(0,0,0,0.98);
             z-index: 1000;
             flex-direction: column;
-            backdrop-filter: blur(10px); /* Efecto moderno */
+            backdrop-filter: blur(10px);
         }
 
         .player-toolbar {
@@ -467,11 +467,96 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
 
+        /* --- Modal de Fin de Capítulo (NUEVO) --- */
+        .chapter-end-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .chapter-end-modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            border: 2px solid var(--primary-focus);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .chapter-end-modal h3 {
+            color: var(--text-main);
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .chapter-end-modal p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .btn-next-chapter {
+            background: linear-gradient(135deg, #F0A3C1 0%, #D16B95 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 15px rgba(209, 107, 149, 0.3);
+        }
+
+        .btn-next-chapter:focus, .btn-next-chapter:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(209, 107, 149, 0.5);
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
+
+        .btn-menu {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            border: 2px solid transparent;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-menu:focus, .btn-menu:hover {
+            background: #FDF5F7;
+            border-color: var(--primary-focus);
+            transform: scale(1.02);
+        }
+
         /* ----- MEDIA QUERIES PARA RESPONSIVIDAD ----- */
         @media (max-width: 900px) {
             body {
                 flex-direction: column;
-                overflow-y: auto; /* Permite scroll general en móvil/tablet */
+                overflow-y: auto; 
                 height: auto;
                 min-height: 100vh;
             }
@@ -623,14 +708,30 @@
         <h2 id="now-playing-title" style="color: white; margin-right: 20px; font-size: clamp(16px, 4vw, 24px); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">Cargando...</h2>
     </div>
     <div class="player-wrapper">
-        <iframe id="youtube-iframe" src="" title="Reproductor de Youtube" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <!-- El div será reemplazado por un Iframe dinámico de YouTube -->
+        <div id="youtube-iframe"></div>
+    </div>
+</div>
+
+<!-- Modal Intermedio de Capítulo Terminado -->
+<div id="chapter-end-modal" class="chapter-end-overlay">
+    <div class="chapter-end-modal">
+        <h3 id="modal-title">¡Capítulo Terminado!</h3>
+        <p id="modal-desc">¿Qué deseas hacer ahora?</p>
+        <div class="modal-buttons">
+            <button id="btn-play-next" class="btn-next-chapter" tabindex="0" onclick="playNextChapter()">
+                Siguiente Capítulo
+            </button>
+            <button class="btn-menu" tabindex="0" onclick="closeChapterModal()">
+                Volver al menú de rutinas
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
     // --- DATOS DE LAS RUTINAS ---
     
-    // Rutina 1: Rodillas
     const ROUTINE_1 = {
         videoId: "GVX3X-Hop2c",
         fullLength: 1602,
@@ -648,7 +749,6 @@
         ]
     };
 
-    // Rutina 2: General 30 mins
     const ROUTINE_2 = {
         videoId: "YDZ_RN0kH2Y",
         fullLength: 1881,
@@ -677,8 +777,57 @@
     // --- ESTADO Y PERSISTENCIA ---
     let appState = {
         mamaName: 'Mamá',
-        completedDays: [] // Formato 'YYYY-MM-DD'
+        completedDays: [] 
     };
+
+    // Estado del reproductor para saber en qué capítulo estamos
+    let ytPlayer = null;
+    let isPlayerReady = false;
+    let currentPlayState = {
+        routineNum: null,
+        chapterIndex: null, // Índice del arreglo de ejercicios
+        isFullRoutine: false
+    };
+
+    // --- INICIALIZACIÓN YOUTUBE API ---
+    function loadYouTubeAPI() {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    // Esta función es llamada automáticamente por la API de Google cuando descarga
+    function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player('youtube-iframe', {
+            playerVars: {
+                'autoplay': 1,
+                'rel': 0,
+                'modestbranding': 1,
+                'controls': 1
+            },
+            events: {
+                'onReady': () => { isPlayerReady = true; },
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        // YT.PlayerState.ENDED equivale a 0
+        if (event.data === YT.PlayerState.ENDED) {
+            // Si estamos reproduciendo un capítulo individual, mostramos el modal
+            if (!currentPlayState.isFullRoutine && currentPlayState.chapterIndex !== null) {
+                showChapterEndModal();
+            } else {
+                // Si es la rutina completa, simplemente cerramos al finalizar
+                closePlayer();
+            }
+        }
+    }
+
+
+    // --- LÓGICA DE INTERFAZ ---
 
     // Utilidades de Fechas
     const formatDate = (date) => {
@@ -711,8 +860,6 @@
         localStorage.setItem('tv_workout_state_v2', JSON.stringify(appState));
     }
 
-    // --- LÓGICA DE INTERFAZ ---
-
     function toggleChapters(listId, iconId) {
         const listContainer = document.getElementById(listId);
         const icon = document.getElementById(iconId);
@@ -723,40 +870,37 @@
         } else {
             listContainer.classList.add('open');
             icon.classList.add('open');
-            // Hacer scroll hacia la lista cuando se abre en móviles
             listContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
 
-    // Inyecta dinámicamente las listas de ejercicios
     function renderAllChapters() {
         const container1 = document.getElementById('list1');
-        container1.innerHTML = ''; // Limpiar pre-render
-        ROUTINE_1.exercises.forEach((ex) => {
-            container1.appendChild(createChapterButton(ex, ROUTINE_1.videoId, 1));
+        container1.innerHTML = ''; 
+        ROUTINE_1.exercises.forEach((ex, index) => {
+            // Pasamos el index del array para saber cuál es el "siguiente"
+            container1.appendChild(createChapterButton(ex, ROUTINE_1.videoId, 1, index));
         });
 
         const container2 = document.getElementById('list2');
         container2.innerHTML = '';
-        ROUTINE_2.exercises.forEach((ex) => {
-            container2.appendChild(createChapterButton(ex, ROUTINE_2.videoId, 2));
+        ROUTINE_2.exercises.forEach((ex, index) => {
+            container2.appendChild(createChapterButton(ex, ROUTINE_2.videoId, 2, index));
         });
     }
 
-    // Crea el botón HTML para un capítulo
-    function createChapterButton(ex, videoId, routineNum) {
+    function createChapterButton(ex, videoId, routineNum, index) {
         const btn = document.createElement('button');
         btn.className = 'chapter-item';
         btn.tabIndex = 0; 
         
         const titleText = `R${routineNum} - Cap. ${ex.id}: ${ex.title}`;
         
-        btn.onclick = () => openPlayer(titleText, videoId, ex.start, ex.end);
-        // Soporte para "Enter" en controles remotos / teclado
+        btn.onclick = () => openPlayer(titleText, videoId, ex.start, ex.end, routineNum, index, false);
         btn.onkeydown = (e) => { 
             if(e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                openPlayer(titleText, videoId, ex.start, ex.end); 
+                openPlayer(titleText, videoId, ex.start, ex.end, routineNum, index, false); 
             }
         };
 
@@ -770,70 +914,127 @@
         return btn;
     }
 
+    // Funciones del Reproductor y Modal
     function playFullRoutine(routineNum) {
         if (routineNum === 1) {
-            openPlayer("Rutina 1 Completa", ROUTINE_1.videoId, 0, ROUTINE_1.fullLength);
+            openPlayer("Rutina 1 Completa", ROUTINE_1.videoId, ROUTINE_1.exercises[0].start, ROUTINE_1.fullLength, 1, null, true);
         } else {
-            openPlayer("Rutina 2 Completa", ROUTINE_2.videoId, 0, ROUTINE_2.fullLength);
+            openPlayer("Rutina 2 Completa", ROUTINE_2.videoId, ROUTINE_2.exercises[0].start, ROUTINE_2.fullLength, 2, null, true);
         }
     }
 
-    // Reproductor Universal
-    function openPlayer(title, videoId, startTime, endTime) {
+    function openPlayer(title, videoId, startTime, endTime, routineNum, chapterIndex, isFullRoutine) {
+        // Guardamos en memoria qué estamos reproduciendo exactamente
+        currentPlayState = { routineNum, chapterIndex, isFullRoutine };
+
         const modal = document.getElementById('tv-player');
-        const iframe = document.getElementById('youtube-iframe');
         const titleEl = document.getElementById('now-playing-title');
-        
         titleEl.innerText = title;
-        
-        const videoUrl = `https://www.youtube.com/embed/${videoId}?start=${startTime}&end=${endTime}&autoplay=1&rel=0&modestbranding=1&controls=1`;
-        iframe.src = videoUrl;
-        
         modal.style.display = 'flex';
+        
         document.getElementById('btn-close-player').focus();
+
+        if (isPlayerReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+            ytPlayer.loadVideoById({
+                'videoId': videoId,
+                'startSeconds': startTime,
+                'endSeconds': endTime
+            });
+        } else {
+            console.error("El reproductor de YouTube no está listo aún.");
+        }
     }
 
     function closePlayer() {
         const modal = document.getElementById('tv-player');
-        const iframe = document.getElementById('youtube-iframe');
         
-        iframe.src = ""; // Detiene la reproducción
+        if (isPlayerReady && ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+            ytPlayer.stopVideo();
+        } 
+        
         modal.style.display = 'none';
-        
-        // Retornar el foco principal para no perder la navegación por teclado/control
         document.querySelector('.hero-button').focus();
     }
 
+    // Lógica del nuevo modal intermedio
+    function showChapterEndModal() {
+        const modal = document.getElementById('chapter-end-modal');
+        const btnNext = document.getElementById('btn-play-next');
+        const titleEl = document.getElementById('modal-title');
+        const descEl = document.getElementById('modal-desc');
+        
+        const routine = currentPlayState.routineNum === 1 ? ROUTINE_1 : ROUTINE_2;
+        
+        // Reset de textos por defecto
+        titleEl.innerText = "¡Capítulo Terminado!";
+        descEl.innerText = "¿Qué deseas hacer ahora?";
+
+        // Verificamos si existe un capítulo siguiente en el array
+        if (currentPlayState.chapterIndex < routine.exercises.length - 1) {
+            const nextChapter = routine.exercises[currentPlayState.chapterIndex + 1];
+            btnNext.style.display = 'block';
+            btnNext.innerText = `Siguiente: ${nextChapter.title} ▶`;
+        } else {
+            // Era el último capítulo de la rutina
+            btnNext.style.display = 'none';
+            titleEl.innerText = "¡Rutina Completada! 🎉";
+            descEl.innerText = "Has terminado todos los capítulos de esta rutina.";
+        }
+        
+        modal.style.display = 'flex';
+        
+        // Asignar el foco para accesibilidad por teclado/TV
+        if (btnNext.style.display !== 'none') {
+            btnNext.focus();
+        } else {
+            document.querySelector('.btn-menu').focus();
+        }
+    }
+
+    function closeChapterModal() {
+        document.getElementById('chapter-end-modal').style.display = 'none';
+        closePlayer(); // Al cerrar el modal para ir al menú, detenemos y ocultamos el video
+    }
+
+    function playNextChapter() {
+        document.getElementById('chapter-end-modal').style.display = 'none';
+        
+        const routine = currentPlayState.routineNum === 1 ? ROUTINE_1 : ROUTINE_2;
+        const nextIndex = currentPlayState.chapterIndex + 1;
+        const ex = routine.exercises[nextIndex];
+        
+        const titleText = `R${currentPlayState.routineNum} - Cap. ${ex.id}: ${ex.title}`;
+        
+        // Invocamos openPlayer con los datos del nuevo capítulo
+        openPlayer(titleText, routine.videoId, ex.start, ex.end, currentPlayState.routineNum, nextIndex, false);
+    }
+
+
     // --- CALENDARIO Y CÁLCULO DE RACHA ---
     
-    // Calcula cuántos días consecutivos hacia atrás están completados
     function calculateStreak() {
         let streak = 0;
         let dateToCheck = new Date(); 
         
-        // Empezar a contar desde hoy. Si hoy no está, ver si ayer está (para mantener racha activa)
         if (!appState.completedDays.includes(formatDate(dateToCheck))) {
             dateToCheck.setDate(dateToCheck.getDate() - 1);
             if (!appState.completedDays.includes(formatDate(dateToCheck))) {
-                return 0; // Ni hoy ni ayer están hechos, racha rota.
+                return 0; 
             }
         }
         
-        // Contar hacia atrás
         while (appState.completedDays.includes(formatDate(dateToCheck))) {
             streak++;
-            dateToCheck.setDate(dateToCheck.getDate() - 1); // Restar un día de forma segura
+            dateToCheck.setDate(dateToCheck.getDate() - 1); 
         }
         return streak;
     }
 
     function renderSidebar() {
-        // Saludo dinámico
         const hrs = today.getHours();
         let greet = hrs < 12 ? "Buenos días" : hrs < 20 ? "Buenas tardes" : "Buenas noches";
         document.getElementById('tv-greeting').innerText = `¡${greet}, ${appState.mamaName}!`;
 
-        // Estado del botón "Rutina Lista"
         const btn = document.getElementById('btn-action');
         if (appState.completedDays.includes(formattedToday)) {
             btn.innerText = "¡Día completado! 🌸";
@@ -847,7 +1048,6 @@
             btn.removeAttribute('aria-disabled');
         }
 
-        // Renderizado del Mes y Calendario
         const grid = document.getElementById('calendar-grid');
         const title = document.getElementById('cal-month-title');
         grid.innerHTML = '';
@@ -858,13 +1058,11 @@
         const firstDay = new Date(currentYear, currentMonth, 1).getDay();
         const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-        // Espacios vacíos al inicio del mes
         for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement('div');
             grid.appendChild(empty);
         }
 
-        // Días del mes
         for (let d = 1; d <= totalDays; d++) {
             const cellDate = new Date(currentYear, currentMonth, d);
             const cellDateStr = formatDate(cellDate);
@@ -883,7 +1081,6 @@
             grid.appendChild(cell);
         }
 
-        // Mostrar racha
         const streak = calculateStreak();
         document.getElementById('streak-counter').innerText = `🔥 ${streak} días`;
     }
@@ -894,7 +1091,6 @@
             saveData();
             renderSidebar();
             
-            // Sonido de éxito (Audiosynth básico nativo)
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
@@ -903,16 +1099,14 @@
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 
-                // Tipo de onda suave
                 osc.type = 'sine'; 
                 
-                // Efecto de campana/logro (sube el tono)
                 osc.frequency.setValueAtTime(440, ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
                 
                 gain.gain.setValueAtTime(0, ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); // Fade in rápido
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6); // Fade out natural
+                gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); 
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6); 
                 
                 osc.start(ctx.currentTime); 
                 osc.stop(ctx.currentTime + 0.6);
@@ -927,6 +1121,7 @@
         loadData();
         renderSidebar();
         renderAllChapters();
+        loadYouTubeAPI(); // Iniciamos la carga dinámica del reproductor
     });
 </script>
 </body>
