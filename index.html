@@ -7,7 +7,8 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FDF5F7">
-    <link rel="icon" type="image/png" href="icon.png">
+    <!-- Icono de fallback si no existe el archivo físico -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
 
     <style>
         :root {
@@ -38,7 +39,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             scrollbar-width: thin;
             scrollbar-color: var(--primary) var(--bg-panel);
         }
@@ -61,6 +62,7 @@
 
         .sidebar {
             width: 340px;
+            min-width: 340px; /* Previene compresión */
             background-color: var(--bg-panel);
             padding: 24px;
             display: flex;
@@ -69,12 +71,14 @@
             border-right: 1px solid #F3D0DC;
             box-shadow: 4px 0 15px rgba(209, 107, 149, 0.1);
             z-index: 10;
+            overflow-y: auto; /* Permite scroll en pantallas bajas */
         }
 
         .header-tv h1 {
             font-size: 28px;
             font-weight: 800;
             margin-bottom: 4px;
+            line-height: 1.2;
         }
 
         .header-tv p {
@@ -105,6 +109,9 @@
             font-weight: bold;
             font-size: 14px;
             border: 1px solid #FAD1B6;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .grid-days {
@@ -146,6 +153,7 @@
             color: white;
             font-weight: bold;
             border: none;
+            box-shadow: 0 2px 5px rgba(107, 179, 139, 0.3);
         }
 
         .btn-logrado {
@@ -157,7 +165,7 @@
             font-weight: bold;
             border-radius: var(--radius);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease-in-out;
             margin-top: auto;
             box-shadow: 0 4px 15px rgba(107, 179, 139, 0.4);
         }
@@ -172,6 +180,8 @@
             background: #E2E8F0;
             color: #94A3B8;
             box-shadow: none;
+            cursor: default;
+            transform: none;
         }
 
         .main-content {
@@ -181,7 +191,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 40px; /* Separación mayor entre rutinas */
+            gap: 40px; 
+            scroll-behavior: smooth;
         }
 
         /* --- Estilos de Bloques de Rutina --- */
@@ -189,11 +200,13 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            max-width: 900px; /* Mejora la lectura en pantallas ultra anchas */
         }
 
         .routine-header h2 {
             font-size: 28px;
             color: var(--text-main);
+            line-height: 1.2;
         }
         
         .routine-header p {
@@ -264,6 +277,7 @@
         .hero-text p {
             color: #6C4957;
             font-size: 16px;
+            opacity: 0.9;
         }
 
         /* Acordeón */
@@ -317,7 +331,7 @@
         .chapters-list {
             display: none; 
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
             background: #FDF5F7;
             padding: 16px;
             border-top: 1px solid #F3D0DC;
@@ -344,21 +358,21 @@
             gap: 20px;
             cursor: pointer;
             text-align: left;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
         .theme-pink .chapter-item:focus, .theme-pink .chapter-item:hover {
             background: #FFFFFF;
             border-color: var(--primary);
-            transform: translateX(10px); 
+            transform: translateX(8px); 
             box-shadow: 0 4px 15px rgba(240, 163, 193, 0.2);
         }
         
         .theme-lavender .chapter-item:focus, .theme-lavender .chapter-item:hover {
             background: #FFFFFF;
             border-color: var(--routine2-primary);
-            transform: translateX(10px); 
+            transform: translateX(8px); 
             box-shadow: 0 4px 15px rgba(205, 180, 219, 0.3);
         }
 
@@ -400,8 +414,9 @@
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.98);
-            z-index: 100;
+            z-index: 1000;
             flex-direction: column;
+            backdrop-filter: blur(10px); /* Efecto moderno */
         }
 
         .player-toolbar {
@@ -439,6 +454,7 @@
             justify-content: center;
             align-items: center;
             padding-bottom: 40px;
+            width: 100%;
         }
 
         .player-wrapper iframe {
@@ -449,6 +465,70 @@
             border: none;
             border-radius: 12px;
             box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        /* ----- MEDIA QUERIES PARA RESPONSIVIDAD ----- */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                overflow-y: auto; /* Permite scroll general en móvil/tablet */
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: auto;
+                border-right: none;
+                border-bottom: 1px solid #F3D0DC;
+                box-shadow: 0 4px 15px rgba(209, 107, 149, 0.05);
+                padding: 20px;
+                overflow-y: visible;
+            }
+
+            .main-content {
+                padding: 20px;
+                overflow-y: visible;
+                gap: 30px;
+            }
+
+            .btn-logrado {
+                margin-top: 10px;
+            }
+
+            .hero-button {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+                padding: 20px;
+            }
+
+            .hero-play-icon {
+                margin: 0 auto;
+            }
+
+            .player-toolbar {
+                padding: 16px 20px;
+            }
+
+            .btn-back-tv {
+                font-size: 16px;
+                padding: 10px 16px;
+            }
+
+            #now-playing-title {
+                font-size: 18px;
+                margin-right: 0;
+                text-align: right;
+            }
+
+            .player-wrapper iframe {
+                height: auto;
+                width: 100%;
+                aspect-ratio: 16/9;
+                max-width: 100%;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
@@ -534,15 +614,16 @@
 
 </main>
 
+<!-- Reproductor Fullscreen Overlay -->
 <div id="tv-player" class="tv-player-overlay">
     <div class="player-toolbar">
         <button id="btn-close-player" class="btn-back-tv" tabindex="0" onclick="closePlayer()">
-            <span>&#10094;</span> Volver al Menú
+            <span>&#10094;</span> <span class="btn-text">Volver</span>
         </button>
-        <h2 id="now-playing-title" style="color: white; margin-right: 20px;">Cargando...</h2>
+        <h2 id="now-playing-title" style="color: white; margin-right: 20px; font-size: clamp(16px, 4vw, 24px); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">Cargando...</h2>
     </div>
     <div class="player-wrapper">
-        <iframe id="youtube-iframe" src="" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe id="youtube-iframe" src="" title="Reproductor de Youtube" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 </div>
 
@@ -596,20 +677,33 @@
     // --- ESTADO Y PERSISTENCIA ---
     let appState = {
         mamaName: 'Mamá',
-        completedDays: []
+        completedDays: [] // Formato 'YYYY-MM-DD'
+    };
+
+    // Utilidades de Fechas
+    const formatDate = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     };
 
     const today = new Date();
+    const formattedToday = formatDate(today);
     const currentYear = today.getFullYear();
-    const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
-    const currentDay = String(today.getDate()).padStart(2, '0');
-    const formattedToday = `${currentYear}-${currentMonth}-${currentDay}`;
+    const currentMonth = today.getMonth();
 
     function loadData() {
         const saved = localStorage.getItem('tv_workout_state_v2');
         if (saved) {
-            try { appState = { ...appState, ...JSON.parse(saved) }; } 
-            catch (e) { console.error("Error", e); }
+            try { 
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed.completedDays)) {
+                    appState.completedDays = parsed.completedDays;
+                }
+            } catch (e) { 
+                console.error("Error cargando datos:", e); 
+            }
         }
     }
 
@@ -629,19 +723,21 @@
         } else {
             listContainer.classList.add('open');
             icon.classList.add('open');
+            // Hacer scroll hacia la lista cuando se abre en móviles
+            listContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
 
-    // Inyecta dinámicamente las listas de ejercicios para ambas rutinas
+    // Inyecta dinámicamente las listas de ejercicios
     function renderAllChapters() {
-        // Renderizar Lista 1
         const container1 = document.getElementById('list1');
+        container1.innerHTML = ''; // Limpiar pre-render
         ROUTINE_1.exercises.forEach((ex) => {
             container1.appendChild(createChapterButton(ex, ROUTINE_1.videoId, 1));
         });
 
-        // Renderizar Lista 2
         const container2 = document.getElementById('list2');
+        container2.innerHTML = '';
         ROUTINE_2.exercises.forEach((ex) => {
             container2.appendChild(createChapterButton(ex, ROUTINE_2.videoId, 2));
         });
@@ -653,10 +749,16 @@
         btn.className = 'chapter-item';
         btn.tabIndex = 0; 
         
-        const titleText = `Rutina ${routineNum} - Cap. ${ex.id}: ${ex.title}`;
+        const titleText = `R${routineNum} - Cap. ${ex.id}: ${ex.title}`;
         
         btn.onclick = () => openPlayer(titleText, videoId, ex.start, ex.end);
-        btn.onkeydown = (e) => { if(e.key === 'Enter') openPlayer(titleText, videoId, ex.start, ex.end); };
+        // Soporte para "Enter" en controles remotos / teclado
+        btn.onkeydown = (e) => { 
+            if(e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openPlayer(titleText, videoId, ex.start, ex.end); 
+            }
+        };
 
         btn.innerHTML = `
             <div class="chapter-num-badge">${ex.id}</div>
@@ -684,7 +786,7 @@
         
         titleEl.innerText = title;
         
-        const videoUrl = `https://www.youtube.com/embed/${videoId}?start=${startTime}&end=${endTime}&autoplay=1&rel=0&modestbranding=1`;
+        const videoUrl = `https://www.youtube.com/embed/${videoId}?start=${startTime}&end=${endTime}&autoplay=1&rel=0&modestbranding=1&controls=1`;
         iframe.src = videoUrl;
         
         modal.style.display = 'flex';
@@ -695,80 +797,94 @@
         const modal = document.getElementById('tv-player');
         const iframe = document.getElementById('youtube-iframe');
         
-        iframe.src = ""; 
+        iframe.src = ""; // Detiene la reproducción
         modal.style.display = 'none';
         
-        // Retornar foco general
+        // Retornar el foco principal para no perder la navegación por teclado/control
         document.querySelector('.hero-button').focus();
     }
 
-    // --- CALENDARIO Y SIDEBAR ---
+    // --- CALENDARIO Y CÁLCULO DE RACHA ---
+    
+    // Calcula cuántos días consecutivos hacia atrás están completados
+    function calculateStreak() {
+        let streak = 0;
+        let dateToCheck = new Date(); 
+        
+        // Empezar a contar desde hoy. Si hoy no está, ver si ayer está (para mantener racha activa)
+        if (!appState.completedDays.includes(formatDate(dateToCheck))) {
+            dateToCheck.setDate(dateToCheck.getDate() - 1);
+            if (!appState.completedDays.includes(formatDate(dateToCheck))) {
+                return 0; // Ni hoy ni ayer están hechos, racha rota.
+            }
+        }
+        
+        // Contar hacia atrás
+        while (appState.completedDays.includes(formatDate(dateToCheck))) {
+            streak++;
+            dateToCheck.setDate(dateToCheck.getDate() - 1); // Restar un día de forma segura
+        }
+        return streak;
+    }
+
     function renderSidebar() {
+        // Saludo dinámico
         const hrs = today.getHours();
         let greet = hrs < 12 ? "Buenos días" : hrs < 20 ? "Buenas tardes" : "Buenas noches";
         document.getElementById('tv-greeting').innerText = `¡${greet}, ${appState.mamaName}!`;
 
+        // Estado del botón "Rutina Lista"
         const btn = document.getElementById('btn-action');
         if (appState.completedDays.includes(formattedToday)) {
             btn.innerText = "¡Día completado! 🌸";
             btn.classList.add('completed');
             btn.disabled = true;
+            btn.setAttribute('aria-disabled', 'true');
+        } else {
+            btn.innerText = "¡Rutina Lista! ⭐";
+            btn.classList.remove('completed');
+            btn.disabled = false;
+            btn.removeAttribute('aria-disabled');
         }
 
+        // Renderizado del Mes y Calendario
         const grid = document.getElementById('calendar-grid');
         const title = document.getElementById('cal-month-title');
         grid.innerHTML = '';
 
         const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        title.innerText = `${monthNames[today.getMonth()]} ${currentYear}`;
+        title.innerText = `${monthNames[currentMonth]} ${currentYear}`;
 
-        const firstDay = new Date(currentYear, today.getMonth(), 1).getDay();
-        const totalDays = new Date(currentYear, today.getMonth() + 1, 0).getDate();
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
+        // Espacios vacíos al inicio del mes
         for (let i = 0; i < firstDay; i++) {
             const empty = document.createElement('div');
             grid.appendChild(empty);
         }
 
-        let streak = 0; 
-        
+        // Días del mes
         for (let d = 1; d <= totalDays; d++) {
+            const cellDate = new Date(currentYear, currentMonth, d);
+            const cellDateStr = formatDate(cellDate);
+            
             const cell = document.createElement('div');
             cell.className = 'day-cell';
             cell.innerText = d;
-
-            const checkStr = `${currentYear}-${currentMonth}-${String(d).padStart(2,'0')}`;
             
-            if (d === today.getDate()) cell.classList.add('today');
-            if (appState.completedDays.includes(checkStr)) cell.classList.add('done');
+            if (cellDateStr === formattedToday) {
+                cell.classList.add('today');
+            }
+            if (appState.completedDays.includes(cellDateStr)) {
+                cell.classList.add('done');
+            }
             
             grid.appendChild(cell);
         }
 
-        let tempDate = new Date(currentYear, today.getMonth(), today.getDate());
-        const getStr = (dateObj) => `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
-        
-        let expected = getStr(tempDate);
-        let yesterdayDate = new Date(tempDate);
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        let yesterday = getStr(yesterdayDate);
-
-        if (!appState.completedDays.includes(expected) && !appState.completedDays.includes(yesterday)) {
-            streak = 0;
-        } else {
-            if(!appState.completedDays.includes(expected)) {
-                tempDate.setDate(tempDate.getDate() - 1);
-            }
-            while(true) {
-                if(appState.completedDays.includes(getStr(tempDate))) {
-                    streak++;
-                    tempDate.setDate(tempDate.getDate() - 1);
-                } else {
-                    break;
-                }
-            }
-        }
-        
+        // Mostrar racha
+        const streak = calculateStreak();
         document.getElementById('streak-counter').innerText = `🔥 ${streak} días`;
     }
 
@@ -778,27 +894,40 @@
             saveData();
             renderSidebar();
             
+            // Sonido de éxito (Audiosynth básico nativo)
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
+                
                 osc.connect(gain);
                 gain.connect(ctx.destination);
+                
+                // Tipo de onda suave
+                osc.type = 'sine'; 
+                
+                // Efecto de campana/logro (sube el tono)
                 osc.frequency.setValueAtTime(440, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                osc.start(); osc.stop(ctx.currentTime + 0.5);
-            } catch(e) {}
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+                
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05); // Fade in rápido
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6); // Fade out natural
+                
+                osc.start(ctx.currentTime); 
+                osc.stop(ctx.currentTime + 0.6);
+            } catch(e) {
+                console.log("AudioContext no soportado o bloqueado por el navegador.");
+            }
         }
     }
 
     // Arranque Principal
-    window.onload = () => {
+    window.addEventListener('DOMContentLoaded', () => {
         loadData();
         renderSidebar();
         renderAllChapters();
-    };
+    });
 </script>
 </body>
 </html>
