@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Rutina de Ejercicios de Mamá</title>
+    
+    <!-- ENLACES PWA (Archivos Fundamentales para instalación nativa) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f0f4f8">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <!-- ----------------------------------------------------------- -->
+
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #1a202c;
+            --text-muted: #4a5568;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --success-dark: #059669;
+            --success-light: #d1fae5;
+            --accent: #f59e0b;
+            --border-radius: 20px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .phone-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+
+        /* Encabezado */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 4px 0 4px;
+        }
+
+        .header-greeting h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .header-greeting p {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .btn-settings {
+            background: var(--card-bg);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .btn-settings:active {
+            transform: scale(0.9);
+        }
+
+        .btn-settings svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-muted);
+        }
+
+        /* Tarjeta del Video de YouTube */
+        .card-video {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* Proporción 16:9 */
+            height: 0;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .video-placeholder p {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        /* Botón de Registro Grande (Senior-friendly) */
+        .btn-workout-action {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 24px 20px;
+            font-size: 24px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .btn-workout-action:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-workout-action.completed {
+            background-color: #cbd5e1;
+            color: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tarjeta del Calendario */
+        .card-calendar {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .calendar-header-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .btn-cal-nav {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .btn-cal-nav:active {
+            background: #e2e8f0;
+            transform: scale(0.95);
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: capitalize;
+        }
+
+        .streak-badge {
+            background-color: #fef3c7;
+            color: #d97706;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .grid-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .grid-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #475569;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .day-cell.today {
+            border: 3px solid var(--primary);
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .day-cell.done {
+            background-color: var(--success) !important;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .day-cell.done::after {
+            content: "✓";
+            font-size: 10px;
+            position: absolute;
+            bottom: 2px;
+            font-weight: bold;
+        }
+
+        .day-cell.empty {
+            background: transparent;
+            pointer-events: none;
+        }
+
+        /* Modal de Configuración */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .btn-close-modal {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-save-settings {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-save-settings:active {
+            transform: scale(0.98);
+        }
+
+        /* Canvas para confeti */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Recordatorio diario visual */
+        .card-reminder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .reminder-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .reminder-info p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .reminder-time {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="phone-wrapper">
+    <!-- Encabezado con saludos dinámicos -->
+    <header>
+        <div class="header-greeting">
+            <h1 id="greeting-title">¡Hola, Mamá! ❤️</h1>
+            <p id="greeting-subtitle">¿Lista para ejercitar su equilibrio?</p>
+        </div>
+        <button class="btn-settings" onclick="openSettings()" title="Configuración de la app">
+            <svg viewBox="0 0 24 24">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.85,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.04,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            </svg>
+        </button>
+    </header>
+
+    <!-- Tarjeta del Video de Ejercicio -->
+    <div class="card-video">
+        <div class="video-container">
+            <iframe id="youtube-iframe" src="" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <div id="video-error-placeholder" class="video-placeholder" style="display: none;">
+                <p>Por favor, configure un video de YouTube válido en el engranaje de configuración.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recordatorio Visual de la Hora -->
+    <div class="card-reminder">
+        <div class="reminder-info">
+            <h3>Hora de Ejercicio</h3>
+            <p>Rutina programada para todos los días</p>
+        </div>
+        <div class="reminder-time" id="lbl-reminder-time">11:00 AM</div>
+    </div>
+
+    <!-- Botón de Logrado -->
+    <button id="btn-action" class="btn-workout-action" onclick="triggerCompletion()">
+        ¡Logrado! Ejercicio Hecho ⭐
+    </button>
+
+    <!-- Tarjeta del Calendario Mensual -->
+    <div class="card-calendar">
+        <div class="calendar-header-top">
+            <div class="streak-badge">
+                🔥 Racha: <span id="streak-counter">0</span> días
+            </div>
+        </div>
+        <div class="calendar-nav">
+            <button class="btn-cal-nav" onclick="changeMonth(-1)">&#10094;</button>
+            <div id="calendar-month-name" class="calendar-title">Mes Año</div>
+            <button class="btn-cal-nav" onclick="changeMonth(1)">&#10095;</button>
+        </div>
+        <div class="grid-weekdays">
+            <div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div>
+        </div>
+        <div id="calendar-days-grid" class="grid-days"></div>
+    </div>
+</div>
+
+<!-- Modal de Configuración -->
+<div id="settings-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Configurar Ejercicios</h2>
+            <button class="btn-close-modal" onclick="closeSettings()">×</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="input-yt-url">Video de YouTube (Enlace completo)</label>
+            <input type="text" id="input-yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+
+        <div class="form-group">
+            <label for="input-alarm-time">Hora del Recordatorio Diario</label>
+            <input type="time" id="input-alarm-time" value="11:00">
+        </div>
+
+        <div class="form-group">
+            <label for="input-greeting-name">Nombre de Mamá</label>
+            <input type="text" id="input-greeting-name" value="Mamá">
+        </div>
+
+        <button class="btn-save-settings" onclick="saveSettings()">Guardar Configuración</button>
+    </div>
+</div>
+
+<script>
+    // Inicialización del Estado y Base de Datos Local
+    let appState = {
+        videoUrl: 'https://www.youtube.com/watch?v=3S72Z7w-D6Y',
+        reminderTime: '11:00',
+        mamaName: 'Mamá',
+        completedDays: [] 
+    };
+
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const currentDay = String(today.getDate()).padStart(2, '0');
+    const formattedToday = `${currentYear}-${currentMonth}-${currentDay}`;
+
+    let viewDate = new Date();
+
+    function loadSavedData() {
+        const savedState = localStorage.getItem('mama_workout_state_v1');
+        if (savedState) {
+            try {
+                appState = { ...appState, ...JSON.parse(savedState) };
+            } catch (e) {
+                console.error("Error cargando el estado local", e);
+            }
+        } else {
+            saveToLocalStorage();
+        }
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('mama_workout_state_v1', JSON.stringify(appState));
+    }
+
+    function getYouTubeId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function setupVideo() {
+        const iframe = document.getElementById('youtube-iframe');
+        const placeholder = document.getElementById('video-error-placeholder');
+        const videoId = getYouTubeId(appState.videoUrl);
+
+        if (videoId) {
+            iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+            iframe.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            iframe.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
+    }
+
+    function formatTimeAMPM(timeString) {
+        const [hoursStr, minutesStr] = timeString.split(':');
+        const hours = parseInt(hoursStr, 10);
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        return `${formattedHours}:${minutesStr} ${ampm}`;
+    }
+
+    function setupGreeting() {
+        const hrs = today.getHours();
+        let greeting = "¡Hola!";
+        if (hrs < 12) greeting = "¡Buenos días!";
+        else if (hrs < 20) greeting = "¡Buenas tardes!";
+        else greeting = "¡Buenas noches!";
+
+        document.getElementById('greeting-title').innerText = `${greeting}, ${appState.mamaName} ❤️`;
+        document.getElementById('lbl-reminder-time').innerText = formatTimeAMPM(appState.reminderTime);
+    }
+
+    function updateActionButtonState() {
+        const btn = document.getElementById('btn-action');
+        if (appState.completedDays.includes(formattedToday)) {
+            btn.innerText = "¡Día completado! Excelente trabajo 🌸";
+            btn.classList.add('completed');
+            btn.disabled = true;
+        } else {
+            btn.innerText = "¡Logrado! Ejercicio Hecho ⭐";
+            btn.classList.remove('completed');
+            btn.disabled = false;
+        }
+    }
+
+    function calculateStreak() {
+        if (appState.completedDays.length === 0) return 0;
+        
+        const sortedDates = [...appState.completedDays]
+            .map(d => {
+                const parts = d.split('-');
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            })
+            .sort((a, b) => b - a);
+
+        let streak = 0;
+        let expectedDate = new Date(currentYear, today.getMonth(), today.getDate());
+
+        const getLocalFormat = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        };
+
+        const expectedTodayStr = getLocalFormat(expectedDate);
+        const yesterday = new Date(expectedDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = getLocalFormat(yesterday);
+
+        if (!appState.completedDays.includes(expectedTodayStr) && !appState.completedDays.includes(yesterdayStr)) {
+            return 0; 
+        }
+
+        if (!appState.completedDays.includes(expectedTodayStr)) {
+            expectedDate.setDate(expectedDate.getDate() - 1); 
+        }
+
+        for (let i = 0; i < sortedDates.length; i++) {
+            const dateStr = getLocalFormat(sortedDates[i]);
+            const expectedStr = getLocalFormat(expectedDate);
+
+            if (dateStr === expectedStr) {
+                streak++;
+                expectedDate.setDate(expectedDate.getDate() - 1); 
+            } else if (sortedDates[i] < expectedDate) {
+                break; 
+            }
+        }
+        return streak;
+    }
+
+    function changeMonth(offset) {
+        viewDate.setMonth(viewDate.getMonth() + offset);
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const container = document.getElementById('calendar-days-grid');
+        const monthName = document.getElementById('calendar-month-name');
+        container.innerHTML = '';
+
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth();
+
+        const monthNamesEs = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        monthName.innerText = `${monthNamesEs[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.classList.add('day-cell', 'empty');
+            container.appendChild(emptyCell);
+        }
+
+        for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('day-cell');
+            dayCell.innerText = dayNum;
+
+            const checkDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+
+            if (dayNum === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                dayCell.classList.add('today');
+            }
+
+            if (appState.completedDays.includes(checkDateStr)) {
+                dayCell.classList.add('done');
+            }
+
+            container.appendChild(dayCell);
+        }
+
+        document.getElementById('streak-counter').innerText = calculateStreak();
+    }
+
+    function playCelebrationSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+            let time = ctx.currentTime;
+
+            notes.forEach((freq) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                gain.gain.setValueAtTime(0.15, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start(time);
+                osc.stop(time + 0.4);
+                
+                time += 0.08; 
+            });
+        } catch (e) {
+            console.log("Audio API not supported", e);
+        }
+    }
+
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createConfettiPartical() {
+        return {
+            x: Math.random() * canvas.width,
+            y: -10,
+            size: Math.random() * 8 + 6,
+            color: `hsl(${Math.random() * 360}, 80%, 60%)`,
+            speedY: Math.random() * 4 + 3,
+            speedX: Math.random() * 2 - 1,
+            rotation: Math.random() * 360,
+            rotationSpeed: Math.random() * 4 - 2
+        };
+    }
+
+    function animateConfetti() {
+        if (confetti.length === 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        confetti.forEach((p, index) => {
+            p.y += p.speedY;
+            p.x += p.speedX;
+            p.rotation += p.rotationSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+
+            if (p.y > canvas.height) {
+                confetti.splice(index, 1);
+            }
+        });
+        requestAnimationFrame(animateConfetti);
+    }
+
+    function startConfettiBurst() {
+        confetti = [];
+        for (let i = 0; i < 120; i++) {
+            confetti.push(createConfettiPartical());
+        }
+        animateConfetti();
+    }
+
+    function triggerCompletion() {
+        if (!appState.completedDays.includes(formattedToday)) {
+            appState.completedDays.push(formattedToday);
+            saveToLocalStorage();
+            
+            playCelebrationSound();
+            startConfettiBurst();
+            
+            updateActionButtonState();
+            renderCalendar();
+        }
+    }
+
+    function openSettings() {
+        document.getElementById('input-yt-url').value = appState.videoUrl;
+        document.getElementById('input-alarm-time').value = appState.reminderTime;
+        document.getElementById('input-greeting-name').value = appState.mamaName;
+        document.getElementById('settings-modal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        document.getElementById('settings-modal').style.display = 'none';
+    }
+
+    function saveSettings() {
+        const url = document.getElementById('input-yt-url').value.trim();
+        const alarm = document.getElementById('input-alarm-time').value;
+        const name = document.getElementById('input-greeting-name').value.trim();
+
+        if (url) {
+            if(!getYouTubeId(url)) {
+                alert("Por favor, ingrese un enlace válido de YouTube.");
+                return;
+            }
+            appState.videoUrl = url;
+        }
+        if (alarm) appState.reminderTime = alarm;
+        if (name) appState.mamaName = name;
+
+        saveToLocalStorage();
+        setupVideo();
+        setupGreeting();
+        renderCalendar();
+        closeSettings();
+    }
+
+    window.onload = function() {
+        loadSavedData();
+        setupVideo();
+        setupGreeting();
+        updateActionButtonState();
+        renderCalendar();
+    };
+</script>
+
+</body>
+</html>
