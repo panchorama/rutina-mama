@@ -3,538 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rutina de Ejercicios de Mamá</title>
+    <title>Rutina de Mamá - TV Edition</title>
     
-    <!-- ENLACES PWA (Archivos Fundamentales para instalación nativa) -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f0f4f8">
+    <meta name="theme-color" content="#FDF5F7">
     <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
-    <!-- ----------------------------------------------------------- -->
 
     <style>
         :root {
-            --bg-color: #f0f4f8;
-            --card-bg: #ffffff;
-            --text-main: #1a202c;
-            --text-muted: #4a5568;
-            --primary: #4f46e5;
-            --primary-light: #e0e7ff;
-            --success: #10b981;
-            --success-dark: #059669;
-            --success-light: #d1fae5;
-            --accent: #f59e0b;
-            --border-radius: 20px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            /* Colores Base - Paleta Pastel Femenina */
+            --bg-base: #FDF5F7;     
+            --bg-panel: #FCE8ED;    
+            --bg-card: #FFFFFF;     
+            
+            /* Textos */
+            --text-main: #4A2B35;   
+            --text-muted: #8C6A76;  
+            
+            /* Acentos */
+            --primary: #F0A3C1;     
+            --primary-focus: #D16B95; 
+            --success: #6BB38B;     
+            
+            /* Tema Rutina 2 (Lavanda) */
+            --routine2-primary: #CDB4DB;
+            --routine2-focus: #A282B8;
+            --routine2-bg: #F7F3FA;
+            
+            --radius: 16px;
+            --focus-ring: 4px solid var(--primary-focus); 
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: system-ui, -apple-system, sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-panel);
+        }
+
+        *:focus-visible {
+            outline: var(--focus-ring);
+            outline-offset: 4px;
+            border-radius: 12px;
+            z-index: 50;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-base);
             color: var(--text-main);
-            padding: 16px;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden; 
+            flex-direction: row;
         }
 
-        .phone-wrapper {
-            width: 100%;
-            max-width: 480px;
-            background-color: var(--bg-color);
+        .sidebar {
+            width: 340px;
+            background-color: var(--bg-panel);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            position: relative;
+            gap: 24px;
+            border-right: 1px solid #F3D0DC;
+            box-shadow: 4px 0 15px rgba(209, 107, 149, 0.1);
+            z-index: 10;
         }
 
-        /* Encabezado */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 4px 0 4px;
-        }
-
-        .header-greeting h1 {
+        .header-tv h1 {
             font-size: 28px;
             font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }
 
-        .header-greeting p {
+        .header-tv p {
+            color: var(--text-muted);
             font-size: 15px;
-            color: var(--text-muted);
-            margin-top: 2px;
-            font-weight: 500;
         }
 
-        .btn-settings {
-            background: var(--card-bg);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s ease;
+        .tv-calendar {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            border: 1px solid #F3D0DC;
         }
 
-        .btn-settings:active {
-            transform: scale(0.9);
-        }
-
-        .btn-settings svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-muted);
-        }
-
-        /* Tarjeta del Video de YouTube */
-        .card-video {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* Proporción 16:9 */
-            height: 0;
-            background: #000;
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #2d3748;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .video-placeholder p {
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        /* Botón de Registro Grande (Senior-friendly) */
-        .btn-workout-action {
-            background-color: var(--success);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            padding: 24px 20px;
-            font-size: 24px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            user-select: none;
-        }
-
-        .btn-workout-action:active {
-            transform: scale(0.96);
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
-        }
-
-        .btn-workout-action.completed {
-            background-color: #cbd5e1;
-            color: #64748b;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Tarjeta del Calendario */
-        .card-calendar {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .calendar-header-top {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 12px;
-        }
-
-        .btn-cal-nav {
-            background: #f1f5f9;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .btn-cal-nav:active {
-            background: #e2e8f0;
-            transform: scale(0.95);
-        }
-
-        .calendar-nav {
+        .cal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .calendar-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-            text-transform: capitalize;
-        }
-
-        .streak-badge {
-            background-color: #fef3c7;
-            color: #d97706;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .grid-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            font-weight: 700;
-            color: #94a3b8;
             margin-bottom: 12px;
+        }
+
+        .streak-tv {
+            background: #FFE8D6;
+            color: #D47A46;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
             font-size: 14px;
+            border: 1px solid #FAD1B6;
         }
 
         .grid-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            gap: 6px;
+            text-align: center;
+        }
+
+        .day-header {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
 
         .day-cell {
             aspect-ratio: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: #FFFFFF;
             border-radius: 50%;
-            font-size: 16px;
-            font-weight: 700;
-            background-color: #f1f5f9;
-            color: #475569;
-            position: relative;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            color: var(--text-muted);
+            border: 1px solid #F0E3E8;
+            transition: all 0.2s;
         }
 
         .day-cell.today {
-            border: 3px solid var(--primary);
-            color: var(--primary);
-            background-color: var(--primary-light);
+            border: 2px solid var(--primary-focus);
+            color: var(--primary-focus);
+            background: #FFF5F8;
+            font-weight: bold;
         }
 
         .day-cell.done {
-            background-color: var(--success) !important;
-            color: white !important;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-        }
-
-        .day-cell.done::after {
-            content: "✓";
-            font-size: 10px;
-            position: absolute;
-            bottom: 2px;
+            background: var(--success);
+            color: white;
             font-weight: bold;
+            border: none;
         }
 
-        .day-cell.empty {
-            background: transparent;
-            pointer-events: none;
+        .btn-logrado {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: auto;
+            box-shadow: 0 4px 15px rgba(107, 179, 139, 0.4);
+        }
+        
+        .btn-logrado:focus, .btn-logrado:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
+            box-shadow: 0 6px 20px rgba(107, 179, 139, 0.6);
         }
 
-        /* Modal de Configuración */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 16px;
+        .btn-logrado.completed {
+            background: #E2E8F0;
+            color: #94A3B8;
+            box-shadow: none;
         }
 
-        .modal-content {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            width: 100%;
-            max-width: 400px;
-            padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 40px; /* Separación mayor entre rutinas */
+        }
+
+        /* --- Estilos de Bloques de Rutina --- */
+        .routine-module {
             display: flex;
             flex-direction: column;
             gap: 16px;
-            animation: slideUp 0.3s ease-out;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .routine-header h2 {
+            font-size: 28px;
+            color: var(--text-main);
         }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .btn-close-modal {
-            background: #f1f5f9;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            font-weight: 700;
+        
+        .routine-header p {
             color: var(--text-muted);
-        }
-
-        .form-group input {
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 2px solid #cbd5e1;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-save-settings {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
+            margin-top: 4px;
             font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
         }
 
-        .btn-save-settings:active {
-            transform: scale(0.98);
-        }
-
-        /* Canvas para confeti */
-        #confetti-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* Botón Gigante (Hero) */
+        .hero-button {
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
+            border: none;
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            border: 2px solid transparent;
         }
 
-        /* Recordatorio diario visual */
-        .card-reminder {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: var(--border-radius);
-            padding: 18px;
-            color: white;
+        /* Variantes de Color por Rutina */
+        .theme-pink .hero-button {
+            background: linear-gradient(135deg, #F3B3CE 0%, #DDA4D2 100%);
+            box-shadow: 0 10px 25px rgba(216, 164, 210, 0.3);
+        }
+        .theme-pink .hero-button:focus, .theme-pink .hero-button:hover {
+            transform: scale(1.02);
+            border-color: #FFFFFF;
+            box-shadow: 0 15px 35px rgba(216, 164, 210, 0.5);
+        }
+        .theme-pink .hero-play-icon { color: #DDA4D2; }
+
+        .theme-lavender .hero-button {
+            background: linear-gradient(135deg, #CDB4DB 0%, #B892FF 100%);
+            box-shadow: 0 10px 25px rgba(184, 146, 255, 0.3);
+        }
+        .theme-lavender .hero-button:focus, .theme-lavender .hero-button:hover {
+            transform: scale(1.02);
+            border-color: #FFFFFF;
+            box-shadow: 0 15px 35px rgba(184, 146, 255, 0.5);
+        }
+        .theme-lavender .hero-play-icon { color: #B892FF; }
+
+        .hero-play-icon {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+            padding-left: 6px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .hero-text h3 {
+            color: #4A2B35;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .hero-text p {
+            color: #6C4957;
+            font-size: 16px;
+        }
+
+        /* Acordeón */
+        .accordion-wrapper {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid #F3D0DC;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        
+        .theme-lavender .accordion-wrapper {
+            border-color: #E2D4F0;
+        }
+
+        .btn-accordion-toggle {
+            width: 100%;
+            background: transparent;
+            color: var(--text-main);
+            border: none;
+            padding: 20px 24px;
+            font-size: 18px;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .reminder-info h3 {
+        .btn-accordion-toggle:focus, .btn-accordion-toggle:hover {
+            background: #FFF9FB;
+        }
+
+        .theme-lavender .btn-accordion-toggle:focus, .theme-lavender .btn-accordion-toggle:hover {
+            background: #F9F6FC;
+        }
+
+        .accordion-icon {
             font-size: 16px;
-            font-weight: 700;
+            transition: transform 0.3s ease;
+            color: var(--primary-focus);
+        }
+        
+        .theme-lavender .accordion-icon { color: var(--routine2-focus); }
+
+        .accordion-icon.open {
+            transform: rotate(180deg);
         }
 
-        .reminder-info p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-top: 2px;
+        .chapters-list {
+            display: none; 
+            flex-direction: column;
+            gap: 2px;
+            background: #FDF5F7;
+            padding: 16px;
+            border-top: 1px solid #F3D0DC;
+        }
+        
+        .theme-lavender .chapters-list {
+            background: var(--routine2-bg);
+            border-top-color: #E2D4F0;
         }
 
-        .reminder-time {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 14px;
+        .chapters-list.open {
+            display: flex;
+        }
+
+        /* Tarjetas de capítulos */
+        .chapter-item {
+            width: 100%;
+            background: var(--bg-card);
+            border: 2px solid transparent;
             border-radius: 12px;
-            font-weight: 800;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .theme-pink .chapter-item:focus, .theme-pink .chapter-item:hover {
+            background: #FFFFFF;
+            border-color: var(--primary);
+            transform: translateX(10px); 
+            box-shadow: 0 4px 15px rgba(240, 163, 193, 0.2);
+        }
+        
+        .theme-lavender .chapter-item:focus, .theme-lavender .chapter-item:hover {
+            background: #FFFFFF;
+            border-color: var(--routine2-primary);
+            transform: translateX(10px); 
+            box-shadow: 0 4px 15px rgba(205, 180, 219, 0.3);
+        }
+
+        .chapter-num-badge {
+            background: #FDF5F7;
+            color: var(--primary-focus);
+            font-weight: 900;
             font-size: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid #F3D0DC;
+        }
+        
+        .theme-lavender .chapter-num-badge {
+            background: var(--routine2-bg);
+            color: var(--routine2-focus);
+            border-color: #E2D4F0;
+        }
+
+        .chapter-info h4 {
+            color: var(--text-main);
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .chapter-info span {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Reproductor Modal */
+        .tv-player-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.98);
+            z-index: 100;
+            flex-direction: column;
+        }
+
+        .player-toolbar {
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
+        .btn-back-tv {
+            background: var(--primary-focus);
+            color: white;
+            border: 2px solid transparent;
+            padding: 12px 24px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s;
+        }
+
+        .btn-back-tv:focus, .btn-back-tv:hover {
+            transform: scale(1.05);
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(209, 107, 149, 0.4);
+        }
+
+        .player-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 40px;
+        }
+
+        .player-wrapper iframe {
+            height: 85%;
+            aspect-ratio: 16/9;
+            max-width: 95%;
+            background: #000;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-<canvas id="confetti-canvas"></canvas>
-
-<div class="phone-wrapper">
-    <!-- Encabezado con saludos dinámicos -->
-    <header>
-        <div class="header-greeting">
-            <h1 id="greeting-title">¡Hola, Mamá! ❤️</h1>
-            <p id="greeting-subtitle">¿Lista para ejercitar su equilibrio?</p>
-        </div>
-        <button class="btn-settings" onclick="openSettings()" title="Configuración de la app">
-            <svg viewBox="0 0 24 24">
-                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.85,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.04,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-            </svg>
-        </button>
-    </header>
-
-    <!-- Tarjeta del Video de Ejercicio -->
-    <div class="card-video">
-        <div class="video-container">
-            <iframe id="youtube-iframe" src="" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            <div id="video-error-placeholder" class="video-placeholder" style="display: none;">
-                <p>Por favor, configure un video de YouTube válido en el engranaje de configuración.</p>
-            </div>
-        </div>
+<aside class="sidebar">
+    <div class="header-tv">
+        <h1 id="tv-greeting">Hola, Mamá</h1>
+        <p>Selecciona tu rutina de hoy</p>
     </div>
 
-    <!-- Recordatorio Visual de la Hora -->
-    <div class="card-reminder">
-        <div class="reminder-info">
-            <h3>Hora de Ejercicio</h3>
-            <p>Rutina programada para todos los días</p>
+    <div class="tv-calendar">
+        <div class="cal-header">
+            <h3 id="cal-month-title">Mes</h3>
+            <span class="streak-tv" id="streak-counter">🔥 0 días</span>
         </div>
-        <div class="reminder-time" id="lbl-reminder-time">11:00 AM</div>
-    </div>
-
-    <!-- Botón de Logrado -->
-    <button id="btn-action" class="btn-workout-action" onclick="triggerCompletion()">
-        ¡Logrado! Ejercicio Hecho ⭐
-    </button>
-
-    <!-- Tarjeta del Calendario Mensual -->
-    <div class="card-calendar">
-        <div class="calendar-header-top">
-            <div class="streak-badge">
-                🔥 Racha: <span id="streak-counter">0</span> días
-            </div>
-        </div>
-        <div class="calendar-nav">
-            <button class="btn-cal-nav" onclick="changeMonth(-1)">&#10094;</button>
-            <div id="calendar-month-name" class="calendar-title">Mes Año</div>
-            <button class="btn-cal-nav" onclick="changeMonth(1)">&#10095;</button>
-        </div>
-        <div class="grid-weekdays">
+        <div class="grid-days day-header">
             <div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div>
         </div>
-        <div id="calendar-days-grid" class="grid-days"></div>
+        <div class="grid-days" id="calendar-grid">
+            <!-- Días renderizados por JS -->
+        </div>
     </div>
-</div>
 
-<!-- Modal de Configuración -->
-<div id="settings-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Configurar Ejercicios</h2>
-            <button class="btn-close-modal" onclick="closeSettings()">×</button>
-        </div>
-        
-        <div class="form-group">
-            <label for="input-yt-url">Video de YouTube (Enlace completo)</label>
-            <input type="text" id="input-yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        </div>
+    <button id="btn-action" class="btn-logrado" tabindex="0" onclick="triggerCompletion()">
+        ¡Rutina Lista! ⭐
+    </button>
+</aside>
 
-        <div class="form-group">
-            <label for="input-alarm-time">Hora del Recordatorio Diario</label>
-            <input type="time" id="input-alarm-time" value="11:00">
+<main class="main-content">
+    
+    <!-- MÓDULO 1: Rutina de Rodillas (Original) -->
+    <div class="routine-module theme-pink">
+        <div class="routine-header">
+            <h2>Rodillas Sanas (Fisioterapia)</h2>
+            <p>Ejercicios suaves para articulaciones y equilibrio.</p>
         </div>
 
-        <div class="form-group">
-            <label for="input-greeting-name">Nombre de Mamá</label>
-            <input type="text" id="input-greeting-name" value="Mamá">
+        <button class="hero-button" tabindex="0" onclick="playFullRoutine(1)">
+            <div class="hero-play-icon">▶</div>
+            <div class="hero-text">
+                <h3>Iniciar Rutina 1</h3>
+                <p>Clase completa de principio a fin (26 mins)</p>
+            </div>
+        </button>
+
+        <div class="accordion-wrapper">
+            <button class="btn-accordion-toggle" tabindex="0" onclick="toggleChapters('list1', 'icon1')">
+                <span>Ver secciones individuales (Capítulos)</span>
+                <span class="accordion-icon" id="icon1">▼</span>
+            </button>
+            <div class="chapters-list" id="list1">
+                <!-- Capítulos inyectados por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 2: Rutina General de 30 mins (Nueva) -->
+    <div class="routine-module theme-lavender">
+        <div class="routine-header">
+            <h2>Mantenimiento General (+70 años)</h2>
+            <p>Rutina completa para todo el cuerpo en silla.</p>
         </div>
 
-        <button class="btn-save-settings" onclick="saveSettings()">Guardar Configuración</button>
+        <button class="hero-button" tabindex="0" onclick="playFullRoutine(2)">
+            <div class="hero-play-icon">▶</div>
+            <div class="hero-text">
+                <h3>Iniciar Rutina 2</h3>
+                <p>Clase completa de principio a fin (30 mins)</p>
+            </div>
+        </button>
+
+        <div class="accordion-wrapper">
+            <button class="btn-accordion-toggle" tabindex="0" onclick="toggleChapters('list2', 'icon2')">
+                <span>Ver secciones individuales (Capítulos)</span>
+                <span class="accordion-icon" id="icon2">▼</span>
+            </button>
+            <div class="chapters-list" id="list2">
+                <!-- Capítulos inyectados por JS -->
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div id="tv-player" class="tv-player-overlay">
+    <div class="player-toolbar">
+        <button id="btn-close-player" class="btn-back-tv" tabindex="0" onclick="closePlayer()">
+            <span>&#10094;</span> Volver al Menú
+        </button>
+        <h2 id="now-playing-title" style="color: white; margin-right: 20px;">Cargando...</h2>
+    </div>
+    <div class="player-wrapper">
+        <iframe id="youtube-iframe" src="" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 </div>
 
 <script>
-    // Inicialización del Estado y Base de Datos Local
+    // --- DATOS DE LAS RUTINAS ---
+    
+    // Rutina 1: Rodillas
+    const ROUTINE_1 = {
+        videoId: "GVX3X-Hop2c",
+        fullLength: 1602,
+        exercises: [
+            { id: 1, title: "Calentamiento de Tobillos", duration: "1 min", start: 71, end: 157 },
+            { id: 2, title: "Aplastar pelota con pie (Cuádriceps)", duration: "3 min", start: 157, end: 331 },
+            { id: 3, title: "Rodar balón y estirar pierna", duration: "3 min", start: 331, end: 521 },
+            { id: 4, title: "Aplastar balón rodillas (Aductores)", duration: "2 min", start: 521, end: 639 },
+            { id: 5, title: "Elevar pierna estirada con balón", duration: "3 min", start: 639, end: 827 },
+            { id: 6, title: "Flexión cadera pierna estirada", duration: "2 min", start: 827, end: 941 },
+            { id: 7, title: "Elevación de rodilla flexionada", duration: "2 min", start: 941, end: 1096 },
+            { id: 8, title: "Transferencia de peso de pie", duration: "3 min", start: 1096, end: 1313 },
+            { id: 9, title: "Pequeñas sentadillas en silla", duration: "2 min", start: 1313, end: 1425 },
+            { id: 10, title: "Equilibrio a una pierna (Reto final)", duration: "2 min", start: 1425, end: 1557 }
+        ]
+    };
+
+    // Rutina 2: General 30 mins
+    const ROUTINE_2 = {
+        videoId: "YDZ_RN0kH2Y",
+        fullLength: 1881,
+        exercises: [
+            { id: 1, title: "Cuello: Empuje vertical con toalla", duration: "2 min", start: 162, end: 245 },
+            { id: 2, title: "Cuello: Extensión posterior", duration: "1 min", start: 245, end: 336 },
+            { id: 3, title: "Cuello: Inclinación lateral (Trapecio)", duration: "1 min", start: 336, end: 417 },
+            { id: 4, title: "Hombros: Círculos hacia atrás/adelante", duration: "1 min", start: 417, end: 471 },
+            { id: 5, title: "Brazos: Elevación frontal (Con o sin peso)", duration: "1 min", start: 471, end: 549 },
+            { id: 6, title: "Hombros: Apertura lateral (Pájaro)", duration: "1 min", start: 549, end: 605 },
+            { id: 7, title: "Muñecas: Movilidad y elevaciones", duration: "2 min", start: 605, end: 726 },
+            { id: 8, title: "Espalda: Estiramiento lateral", duration: "2 min", start: 736, end: 861 },
+            { id: 9, title: "Columna: Rotaciones lumbares", duration: "2 min", start: 861, end: 996 },
+            { id: 10, title: "Columna: Extensión y Flexión (Pecho a rodillas)", duration: "2 min", start: 996, end: 1156 },
+            { id: 11, title: "Caderas: Elevación de rodillas", duration: "1 min", start: 1156, end: 1250 },
+            { id: 12, title: "Aductores: Aplastar toalla entre rodillas", duration: "1 min", start: 1250, end: 1333 },
+            { id: 13, title: "Glúteo medio: Apertura lateral de pierna", duration: "1 min", start: 1333, end: 1448 },
+            { id: 14, title: "Rodillas: Extensión de pierna (Cuádriceps)", duration: "1 min", start: 1448, end: 1558 },
+            { id: 15, title: "Tobillos: Círculos pie elevado", duration: "1 min", start: 1558, end: 1606 },
+            { id: 16, title: "De pie: Sentadillas apoyadas (45 grados)", duration: "1 min", start: 1606, end: 1675 },
+            { id: 17, title: "De pie: Aperturas laterales de cadera", duration: "1 min", start: 1675, end: 1774 },
+            { id: 18, title: "De pie: Balanceo puntas y talones", duration: "1 min", start: 1774, end: 1838 }
+        ]
+    };
+
+    // --- ESTADO Y PERSISTENCIA ---
     let appState = {
-        videoUrl: 'https://www.youtube.com/watch?v=3S72Z7w-D6Y',
-        reminderTime: '11:00',
         mamaName: 'Mamá',
-        completedDays: [] 
+        completedDays: []
     };
 
     const today = new Date();
@@ -543,318 +605,200 @@
     const currentDay = String(today.getDate()).padStart(2, '0');
     const formattedToday = `${currentYear}-${currentMonth}-${currentDay}`;
 
-    let viewDate = new Date();
-
-    function loadSavedData() {
-        const savedState = localStorage.getItem('mama_workout_state_v1');
-        if (savedState) {
-            try {
-                appState = { ...appState, ...JSON.parse(savedState) };
-            } catch (e) {
-                console.error("Error cargando el estado local", e);
-            }
-        } else {
-            saveToLocalStorage();
+    function loadData() {
+        const saved = localStorage.getItem('tv_workout_state_v2');
+        if (saved) {
+            try { appState = { ...appState, ...JSON.parse(saved) }; } 
+            catch (e) { console.error("Error", e); }
         }
     }
 
-    function saveToLocalStorage() {
-        localStorage.setItem('mama_workout_state_v1', JSON.stringify(appState));
+    function saveData() {
+        localStorage.setItem('tv_workout_state_v2', JSON.stringify(appState));
     }
 
-    function getYouTubeId(url) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
+    // --- LÓGICA DE INTERFAZ ---
+
+    function toggleChapters(listId, iconId) {
+        const listContainer = document.getElementById(listId);
+        const icon = document.getElementById(iconId);
+        
+        if (listContainer.classList.contains('open')) {
+            listContainer.classList.remove('open');
+            icon.classList.remove('open');
+        } else {
+            listContainer.classList.add('open');
+            icon.classList.add('open');
+        }
     }
 
-    function setupVideo() {
+    // Inyecta dinámicamente las listas de ejercicios para ambas rutinas
+    function renderAllChapters() {
+        // Renderizar Lista 1
+        const container1 = document.getElementById('list1');
+        ROUTINE_1.exercises.forEach((ex) => {
+            container1.appendChild(createChapterButton(ex, ROUTINE_1.videoId, 1));
+        });
+
+        // Renderizar Lista 2
+        const container2 = document.getElementById('list2');
+        ROUTINE_2.exercises.forEach((ex) => {
+            container2.appendChild(createChapterButton(ex, ROUTINE_2.videoId, 2));
+        });
+    }
+
+    // Crea el botón HTML para un capítulo
+    function createChapterButton(ex, videoId, routineNum) {
+        const btn = document.createElement('button');
+        btn.className = 'chapter-item';
+        btn.tabIndex = 0; 
+        
+        const titleText = `Rutina ${routineNum} - Cap. ${ex.id}: ${ex.title}`;
+        
+        btn.onclick = () => openPlayer(titleText, videoId, ex.start, ex.end);
+        btn.onkeydown = (e) => { if(e.key === 'Enter') openPlayer(titleText, videoId, ex.start, ex.end); };
+
+        btn.innerHTML = `
+            <div class="chapter-num-badge">${ex.id}</div>
+            <div class="chapter-info">
+                <h4>${ex.title}</h4>
+                <span>⏱ ${ex.duration}</span>
+            </div>
+        `;
+        return btn;
+    }
+
+    function playFullRoutine(routineNum) {
+        if (routineNum === 1) {
+            openPlayer("Rutina 1 Completa", ROUTINE_1.videoId, 0, ROUTINE_1.fullLength);
+        } else {
+            openPlayer("Rutina 2 Completa", ROUTINE_2.videoId, 0, ROUTINE_2.fullLength);
+        }
+    }
+
+    // Reproductor Universal
+    function openPlayer(title, videoId, startTime, endTime) {
+        const modal = document.getElementById('tv-player');
         const iframe = document.getElementById('youtube-iframe');
-        const placeholder = document.getElementById('video-error-placeholder');
-        const videoId = getYouTubeId(appState.videoUrl);
-
-        if (videoId) {
-            iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
-            iframe.style.display = 'block';
-            placeholder.style.display = 'none';
-        } else {
-            iframe.style.display = 'none';
-            placeholder.style.display = 'flex';
-        }
+        const titleEl = document.getElementById('now-playing-title');
+        
+        titleEl.innerText = title;
+        
+        const videoUrl = `https://www.youtube.com/embed/${videoId}?start=${startTime}&end=${endTime}&autoplay=1&rel=0&modestbranding=1`;
+        iframe.src = videoUrl;
+        
+        modal.style.display = 'flex';
+        document.getElementById('btn-close-player').focus();
     }
 
-    function formatTimeAMPM(timeString) {
-        const [hoursStr, minutesStr] = timeString.split(':');
-        const hours = parseInt(hoursStr, 10);
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
-        return `${formattedHours}:${minutesStr} ${ampm}`;
+    function closePlayer() {
+        const modal = document.getElementById('tv-player');
+        const iframe = document.getElementById('youtube-iframe');
+        
+        iframe.src = ""; 
+        modal.style.display = 'none';
+        
+        // Retornar foco general
+        document.querySelector('.hero-button').focus();
     }
 
-    function setupGreeting() {
+    // --- CALENDARIO Y SIDEBAR ---
+    function renderSidebar() {
         const hrs = today.getHours();
-        let greeting = "¡Hola!";
-        if (hrs < 12) greeting = "¡Buenos días!";
-        else if (hrs < 20) greeting = "¡Buenas tardes!";
-        else greeting = "¡Buenas noches!";
+        let greet = hrs < 12 ? "Buenos días" : hrs < 20 ? "Buenas tardes" : "Buenas noches";
+        document.getElementById('tv-greeting').innerText = `¡${greet}, ${appState.mamaName}!`;
 
-        document.getElementById('greeting-title').innerText = `${greeting}, ${appState.mamaName} ❤️`;
-        document.getElementById('lbl-reminder-time').innerText = formatTimeAMPM(appState.reminderTime);
-    }
-
-    function updateActionButtonState() {
         const btn = document.getElementById('btn-action');
         if (appState.completedDays.includes(formattedToday)) {
-            btn.innerText = "¡Día completado! Excelente trabajo 🌸";
+            btn.innerText = "¡Día completado! 🌸";
             btn.classList.add('completed');
             btn.disabled = true;
-        } else {
-            btn.innerText = "¡Logrado! Ejercicio Hecho ⭐";
-            btn.classList.remove('completed');
-            btn.disabled = false;
         }
-    }
 
-    function calculateStreak() {
-        if (appState.completedDays.length === 0) return 0;
+        const grid = document.getElementById('calendar-grid');
+        const title = document.getElementById('cal-month-title');
+        grid.innerHTML = '';
+
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        title.innerText = `${monthNames[today.getMonth()]} ${currentYear}`;
+
+        const firstDay = new Date(currentYear, today.getMonth(), 1).getDay();
+        const totalDays = new Date(currentYear, today.getMonth() + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement('div');
+            grid.appendChild(empty);
+        }
+
+        let streak = 0; 
         
-        const sortedDates = [...appState.completedDays]
-            .map(d => {
-                const parts = d.split('-');
-                return new Date(parts[0], parts[1] - 1, parts[2]);
-            })
-            .sort((a, b) => b - a);
+        for (let d = 1; d <= totalDays; d++) {
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            cell.innerText = d;
 
-        let streak = 0;
-        let expectedDate = new Date(currentYear, today.getMonth(), today.getDate());
-
-        const getLocalFormat = (d) => {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-        };
-
-        const expectedTodayStr = getLocalFormat(expectedDate);
-        const yesterday = new Date(expectedDate);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = getLocalFormat(yesterday);
-
-        if (!appState.completedDays.includes(expectedTodayStr) && !appState.completedDays.includes(yesterdayStr)) {
-            return 0; 
-        }
-
-        if (!appState.completedDays.includes(expectedTodayStr)) {
-            expectedDate.setDate(expectedDate.getDate() - 1); 
-        }
-
-        for (let i = 0; i < sortedDates.length; i++) {
-            const dateStr = getLocalFormat(sortedDates[i]);
-            const expectedStr = getLocalFormat(expectedDate);
-
-            if (dateStr === expectedStr) {
-                streak++;
-                expectedDate.setDate(expectedDate.getDate() - 1); 
-            } else if (sortedDates[i] < expectedDate) {
-                break; 
-            }
-        }
-        return streak;
-    }
-
-    function changeMonth(offset) {
-        viewDate.setMonth(viewDate.getMonth() + offset);
-        renderCalendar();
-    }
-
-    function renderCalendar() {
-        const container = document.getElementById('calendar-days-grid');
-        const monthName = document.getElementById('calendar-month-name');
-        container.innerHTML = '';
-
-        const year = viewDate.getFullYear();
-        const month = viewDate.getMonth();
-
-        const monthNamesEs = [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        monthName.innerText = `${monthNamesEs[month]} ${year}`;
-
-        const firstDayIndex = new Date(year, month, 1).getDay();
-        const totalDays = new Date(year, month + 1, 0).getDate();
-
-        for (let i = 0; i < firstDayIndex; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.classList.add('day-cell', 'empty');
-            container.appendChild(emptyCell);
-        }
-
-        for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
-            const dayCell = document.createElement('div');
-            dayCell.classList.add('day-cell');
-            dayCell.innerText = dayNum;
-
-            const checkDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-
-            if (dayNum === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                dayCell.classList.add('today');
-            }
-
-            if (appState.completedDays.includes(checkDateStr)) {
-                dayCell.classList.add('done');
-            }
-
-            container.appendChild(dayCell);
-        }
-
-        document.getElementById('streak-counter').innerText = calculateStreak();
-    }
-
-    function playCelebrationSound() {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
+            const checkStr = `${currentYear}-${currentMonth}-${String(d).padStart(2,'0')}`;
             
-            const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
-            let time = ctx.currentTime;
-
-            notes.forEach((freq) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, time);
-                
-                gain.gain.setValueAtTime(0.15, time);
-                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
-                
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.start(time);
-                osc.stop(time + 0.4);
-                
-                time += 0.08; 
-            });
-        } catch (e) {
-            console.log("Audio API not supported", e);
+            if (d === today.getDate()) cell.classList.add('today');
+            if (appState.completedDays.includes(checkStr)) cell.classList.add('done');
+            
+            grid.appendChild(cell);
         }
-    }
 
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx = canvas.getContext('2d');
-    let confetti = [];
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    function createConfettiPartical() {
-        return {
-            x: Math.random() * canvas.width,
-            y: -10,
-            size: Math.random() * 8 + 6,
-            color: `hsl(${Math.random() * 360}, 80%, 60%)`,
-            speedY: Math.random() * 4 + 3,
-            speedX: Math.random() * 2 - 1,
-            rotation: Math.random() * 360,
-            rotationSpeed: Math.random() * 4 - 2
-        };
-    }
-
-    function animateConfetti() {
-        if (confetti.length === 0) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            return;
-        }
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let tempDate = new Date(currentYear, today.getMonth(), today.getDate());
+        const getStr = (dateObj) => `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
         
-        confetti.forEach((p, index) => {
-            p.y += p.speedY;
-            p.x += p.speedX;
-            p.rotation += p.rotationSpeed;
+        let expected = getStr(tempDate);
+        let yesterdayDate = new Date(tempDate);
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        let yesterday = getStr(yesterdayDate);
 
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate((p.rotation * Math.PI) / 180);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-            ctx.restore();
-
-            if (p.y > canvas.height) {
-                confetti.splice(index, 1);
+        if (!appState.completedDays.includes(expected) && !appState.completedDays.includes(yesterday)) {
+            streak = 0;
+        } else {
+            if(!appState.completedDays.includes(expected)) {
+                tempDate.setDate(tempDate.getDate() - 1);
             }
-        });
-        requestAnimationFrame(animateConfetti);
-    }
-
-    function startConfettiBurst() {
-        confetti = [];
-        for (let i = 0; i < 120; i++) {
-            confetti.push(createConfettiPartical());
+            while(true) {
+                if(appState.completedDays.includes(getStr(tempDate))) {
+                    streak++;
+                    tempDate.setDate(tempDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
         }
-        animateConfetti();
+        
+        document.getElementById('streak-counter').innerText = `🔥 ${streak} días`;
     }
 
     function triggerCompletion() {
         if (!appState.completedDays.includes(formattedToday)) {
             appState.completedDays.push(formattedToday);
-            saveToLocalStorage();
+            saveData();
+            renderSidebar();
             
-            playCelebrationSound();
-            startConfettiBurst();
-            
-            updateActionButtonState();
-            renderCalendar();
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start(); osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
         }
     }
 
-    function openSettings() {
-        document.getElementById('input-yt-url').value = appState.videoUrl;
-        document.getElementById('input-alarm-time').value = appState.reminderTime;
-        document.getElementById('input-greeting-name').value = appState.mamaName;
-        document.getElementById('settings-modal').style.display = 'flex';
-    }
-
-    function closeSettings() {
-        document.getElementById('settings-modal').style.display = 'none';
-    }
-
-    function saveSettings() {
-        const url = document.getElementById('input-yt-url').value.trim();
-        const alarm = document.getElementById('input-alarm-time').value;
-        const name = document.getElementById('input-greeting-name').value.trim();
-
-        if (url) {
-            if(!getYouTubeId(url)) {
-                alert("Por favor, ingrese un enlace válido de YouTube.");
-                return;
-            }
-            appState.videoUrl = url;
-        }
-        if (alarm) appState.reminderTime = alarm;
-        if (name) appState.mamaName = name;
-
-        saveToLocalStorage();
-        setupVideo();
-        setupGreeting();
-        renderCalendar();
-        closeSettings();
-    }
-
-    window.onload = function() {
-        loadSavedData();
-        setupVideo();
-        setupGreeting();
-        updateActionButtonState();
-        renderCalendar();
+    // Arranque Principal
+    window.onload = () => {
+        loadData();
+        renderSidebar();
+        renderAllChapters();
     };
 </script>
-
 </body>
 </html>

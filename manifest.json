@@ -3,8 +3,8 @@
   "short_name": "Rutina Mamá",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f0f4f8",
-  "theme_color": "#4f46e5",
+  "background_color": "#FDF5F7",
+  "theme_color": "#F0A3C1",
   "orientation": "portrait",
   "icons": [
     {
